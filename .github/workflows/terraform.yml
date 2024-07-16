@@ -3,7 +3,7 @@ name: Terraform CI
 on:
   push:
     branches:
-    test1702
+    
       - main
       - 
   pull_request:
