@@ -1,12 +1,21 @@
 name: Terraform CI
 
 on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Choose Terraform action (apply/destroy)'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+
   push:
     branches:
-    
       - main
-      - test1702
-  pull_request:
+      - test12
 
 jobs:
   terraform:
@@ -14,13 +23,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TF_VAR_region: eu-north-1
+      TF_VAR_region: us-west-2  # Set your AWS region or equivalent for other providers
 
     steps:
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: Checkout Code
       uses: actions/checkout@v2
 
@@ -39,16 +44,28 @@ jobs:
       run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan 
+      run: terraform plan
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Terraform Apply
+      if: ${{ github.event.inputs.action == 'apply' && github.ref == 'refs/heads/test12' }}
+      run: terraform apply -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - name: Terraform Destroy
+      if: ${{ github.event.inputs.action == 'destroy' && github.ref == 'refs/heads/test12' }}
       run: terraform destroy -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Skip Terraform Apply/Destroy on main
+      if: github.ref == 'refs/heads/main'
+      run: echo "Skipping terraform apply/destroy on main branch"
        
 
   
