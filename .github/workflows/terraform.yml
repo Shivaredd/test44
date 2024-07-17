@@ -6,6 +6,7 @@ on:
     
       - main
       - test1702
+      - test171
   pull_request:
 
 jobs:
