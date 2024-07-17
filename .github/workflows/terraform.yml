@@ -66,11 +66,3 @@ jobs:
     - name: Skip Terraform Apply/Destroy on main
       if: github.ref == 'refs/heads/main'
       run: echo "Skipping terraform apply/destroy on main branch"
-       
-
-  
-
-    
-    
-
-
