@@ -16,6 +16,7 @@ on:
     branches:
       - main
       - test12
+      - test171
 
 jobs:
   terraform:
